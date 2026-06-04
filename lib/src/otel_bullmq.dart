@@ -2,7 +2,6 @@
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
 import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
-import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_bullmq_suppression.dart';
 
@@ -52,48 +51,61 @@ Future<T> tracedBullMQ<T>({
   final t = tracer ?? OTel.tracerProvider().getTracer('otel_bullmq');
   final span = t.startSpan('bullmq $operation', kind: SpanKind.producer);
   try {
-    span.setStringAttribute('messaging.system', 'bullmq');
+    span.addAttributes(
+        OTel.attributes([OTel.attributeString('messaging.system', 'bullmq')]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.queueName != null) {
-        span.setStringAttribute('messaging.destination.name', res.queueName!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('messaging.destination.name', res.queueName!)
+        ]));
       }
       if (res.jobName != null) {
-        span.setStringAttribute('bullmq.job.name', res.jobName!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('bullmq.job.name', res.jobName!)]));
       }
       if (res.jobId != null) {
-        span.setStringAttribute('messaging.message.id', res.jobId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('messaging.message.id', res.jobId!)]));
       }
       if (res.attempts != null) {
-        span.setIntAttribute('bullmq.attempts', res.attempts!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeInt('bullmq.attempts', res.attempts!)]));
       }
       if (res.priority != null) {
-        span.setIntAttribute('messaging.message.priority', res.priority!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeInt('messaging.message.priority', res.priority!)]));
       }
       if (res.delayMs != null) {
-        span.setIntAttribute('bullmq.delay', res.delayMs!);
+        span.addAttributes(
+            OTel.attributes([OTel.attributeInt('bullmq.delay', res.delayMs!)]));
       }
       if (res.parentId != null) {
-        span.setStringAttribute('bullmq.parent_id', res.parentId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('bullmq.parent_id', res.parentId!)]));
       }
       if (res.flowId != null) {
-        span.setStringAttribute('bullmq.flow_id', res.flowId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('bullmq.flow_id', res.flowId!)]));
       }
       if (res.statusCode != null) {
-        span.setIntAttribute('http.response.status_code', res.statusCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
       }
       if (res.errorCode != null) {
-        span.setStringAttribute('bullmq.error.code', res.errorCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('bullmq.error.code', res.errorCode!)]));
       }
-      final fail =
-          res.errorCode != null ||
+      final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400);
       if (fail) {
-        span.setStringAttribute(
-          ErrorResource.errorType.key,
-          res.errorCode ?? 'bullmq.error',
-        );
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+            ErrorResource.errorType.key,
+            res.errorCode ?? 'bullmq.error',
+          )
+        ]));
         span.setStatus(SpanStatusCode.Error, res.errorMessage);
       }
     }
