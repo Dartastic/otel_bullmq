@@ -45,7 +45,7 @@ Future<T> tracedBullMQ<T>({
   required Future<BullMQCallResult<T>> Function() invoke,
   Tracer? tracer,
 }) async {
-  if (bullMQInstrumentationSuppressed()) {
+  if (bullmqInstrumentationSuppressed()) {
     final r = await invoke();
     return r.value;
   }

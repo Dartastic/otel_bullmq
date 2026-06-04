@@ -14,8 +14,8 @@ void main() {
       expect(bullmqInstrumentationSuppressed(), isFalse);
     });
 
-    test('BullmqResult fields default null', () {
-      const r = BullmqResult();
+    test('BullMQResult fields default null', () {
+      const r = BullMQResult();
       expect(r.statusCode, isNull);
     });
   });
